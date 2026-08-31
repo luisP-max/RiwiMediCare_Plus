@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { ConnectDB } from './config/db.js';
 import routerAuth from './routes/auth.router.js';
 import routerClinic from './routes/clinic.router.js';
+import routerWarehouse from './routes/warehouse.router.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -18,9 +19,8 @@ app.use(express.json());
  * Mounts operational controllers onto standard REST endpoint path structures.
  */
 app.use('/api/auth', routerAuth);
-app.use('/api/auth', routerAuth);
 app.use('/api/clinics', routerClinic);
-
+app.use('/api/warehouses', routerWarehouse);
 /**
  * Core asynchronous server bootstrap sequence.
  * Establishes database handshakes before opening network interface sockets.
