@@ -4,6 +4,7 @@ import { ConnectDB } from './config/db.js';
 import routerAuth from './routes/auth.router.js';
 import routerClinic from './routes/clinic.router.js';
 import routerWarehouse from './routes/warehouse.router.js';
+import routerMedicine from './routes/medicine.router.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/api/auth', routerAuth);
 app.use('/api/clinics', routerClinic);
 app.use('/api/warehouses', routerWarehouse);
+app.use('/api/medicines', routerMedicine);
 /**
  * Core asynchronous server bootstrap sequence.
  * Establishes database handshakes before opening network interface sockets.
