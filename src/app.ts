@@ -7,6 +7,8 @@ import routerWarehouse from './routes/warehouse.router.js';
 import routerMedicine from './routes/medicine.router.js';
 import routerRequest from './routes/request.router.js';
 import routerSeed from './routes/seed.router.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -16,6 +18,7 @@ const PORT = Number(process.env.PORT) || 3000;
  * Configures the Express engine to natively process incoming JSON payloads.
  */
 app.use(express.json());
+
 
 /**
  * System Route Registrations.
@@ -27,6 +30,9 @@ app.use('/api/warehouses', routerWarehouse);
 app.use('/api/medicines', routerMedicine);
 app.use('/api/requests', routerRequest);
 app.use('/api/seeds', routerSeed);
+// Serves the full interactive Swagger visualization layer interface over /api-docs route path
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 /**
  * Core asynchronous server bootstrap sequence.
  * Establishes database handshakes before opening network interface sockets.
