@@ -3,88 +3,95 @@ import { User } from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'llave_secreta_super_segura_de_riwicare';
+const JWT_SECRET = process.env.JWT_SECRET || 'high_security_corporate_jwt_secret_token_2026';
 
-// 1. REGISTRO DE USUARIOS
-export const registrarUsuario = async (req: Request, res: Response) => {
+/**
+ * Handles the registration logic for new users.
+ * Public endpoint without access token validation as per page 2 criteria.
+ */
+export const registerUser = async (req: Request, res: Response) => {
     try {
-        const { nombre, email, password, rol } = req.body;
+        const { name, email, password, role } = req.body;
 
-        if (!nombre || !email || !password || !rol) {
-            return res.status(400).json({ message: 'Error: Todos los campos son obligatorios.' });
+        // Basic payload data integrity validation
+        if (!name || !email || !password || !role) {
+            return res.status(400).json({ message: 'Error: All payload fields (name, email, password, role) are strictly mandatory.' });
         }
 
-        if (rol !== 'Administrador' && rol !== 'Gestor de Solicitudes') {
-            return res.status(400).json({ message: "Error: El rol debe ser 'Administrador' o 'Gestor de Solicitudes'." });
+        // Validate corporate role compliance criteria
+        if (role !== 'Administrator' && role !== 'Request Manager') {
+            return res.status(400).json({ message: "Error: The user role must be exactly 'Administrator' or 'Request Manager'." });
         }
 
-        // Encriptamos la clave por seguridad utilizando bcrypt antes de impactar PostgreSQL
+        // Secure password hashing using bcrypt before relational database ingestion
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
 
-        // Sequelize realiza el INSERT INTO automatico en la tabla usuarios
-        const nuevoUsuario = await User.create({
-            nombre,
+        // Execute ORM query abstraction to insert a new row physically into PostgreSQL
+        const newUser = await User.create({
+            name,
             email,
             password: passwordHash,
-            rol
+            role
         });
 
         return res.status(201).json({
-            message: 'Usuario registrado con exito en RiwiMediCare',
-            usuario: {
-                id: nuevoUsuario.id,
-                nombre: nuevoUsuario.nombre,
-                email: nuevoUsuario.email,
-                rol: nuevoUsuario.rol
+            message: 'User administrative account successfully created within the system.',
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                role: newUser.role
             }
         });
     } catch (error) {
-        console.error('[Auth Error] Error en el registro de usuario:', error);
-        return res.status(500).json({ message: 'Error interno al registrar el usuario', error });
+        console.error('[Auth Controller Error] Failed to persist user registration:', error);
+        return res.status(500).json({ message: 'Internal server error encountered while creating the user account.', error });
     }
 };
 
-// 2. INICIO DE SESIÓN (LOGIN)
-export const iniciarSesion = async (req: Request, res: Response) => {
+/**
+ * Validates credentials and generates an access JSON Web Token (JWT).
+ */
+export const logInUser = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ message: 'Error: Correo y contraseña requeridos.' });
+            return res.status(400).json({ message: 'Error: Credentials payload requires both email and password keys.' });
         }
 
-        // Busqueda parametrizada nativa de Sequelize mediantefindOne
-        const usuario = await Usuario.findOne({ where: { email } });
-        if (!usuario) {
-            return res.status(401).json({ message: 'Credenciales invalidas (Correo incorrecto).' });
+        // Query the database using Sequelize abstraction to identify the user email row
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid authentication credentials provided (Email mismatch).' });
         }
 
-        // Verificamos si la clave coincide contra el Hash guardado en Docker
-        const passwordValido = await bcrypt.compare(password, usuario.password);
-        if (!passwordValido) {
-            return res.status(401).json({ message: 'Credenciales invalidas (Contraseña incorrecta).' });
+        // Compare incoming plain text password against the hashed footprint stored in Docker
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid authentication credentials provided (Password mismatch).' });
         }
 
-        // Firmamos el token digital de acceso con una duracion de 2 horas
-        const token = jwt.sign(
-            { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
+        // Sign the cryptographic access token payload with a strict 2-hour lifecycle expiration
+        const accessToken = jwt.sign(
+            { id: user.id, name: user.name, email: user.email, role: user.role },
             JWT_SECRET,
             { expiresIn: '2h' }
         );
 
         return res.json({
-            message: 'Autenticacion exitosa. Bienvenido a RiwiMediCare Plus',
-            token,
-            usuario: {
-                id: usuario.id,
-                nombre: usuario.nombre,
-                email: usuario.email,
-                rol: usuario.rol
+            message: 'Authentication successful. Welcome to RiwiMediCare Plus infrastructure.',
+            token: accessToken,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role
             }
         });
     } catch (error) {
-        console.error('[Auth Error] Error en el inicio de sesion:', error);
-        return res.status(500).json({ message: 'Error interno en el servidor durante el login', error });
+        console.error('[Auth Controller Error] Internal server login exception triggered:', error);
+        return res.status(500).json({ message: 'Internal server error triggered during the authentication protocol sequence.', error });
     }
 };
