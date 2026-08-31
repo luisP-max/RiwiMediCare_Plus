@@ -1,10 +1,13 @@
 import express from 'express';
-import { registrarUsuario, iniciarSesion } from '../controllers/auth.controller.js';
+import { registerUser, logInUser } from '../controllers/auth.controller.js';
 
 const router = express.Router();
 
-// Rutas publicas de acceso al sistema sin restricciones de token
-router.post('/register', registrarUsuario);
-router.post('/login', iniciarSesion);
+/**
+ * Public network routes for security handling.
+ * Exempt from access token validation as per architectural requirements.
+ */
+router.post('/register', registerUser);
+router.post('/login', logInUser);
 
 export default router;
