@@ -1,16 +1,20 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../config/db.js';
 
-export class Clinica extends Model {
+/**
+ * Clinic Model representing the 'clinics' table in PostgreSQL.
+ * Manages healthcare center data records and enforcement of unique corporate identities.
+ */
+export class Clinic extends Model {
     public id!: string;
     public nit!: string;
-    public nombre!: string;
-    public direccion!: string;
-    public responsable_nombre!: string;
-    public estado!: 'activo' | 'eliminado';
+    public name!: string;
+    public address!: string;
+    public managerName!: string;
+    public status!: 'active' | 'deleted';
 }
 
-Clinica.init(
+Clinic.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -20,29 +24,29 @@ Clinica.init(
         nit: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            unique: true, // Bloquea de forma nativa en PostgreSQL los NITs duplicados
+            unique: true, // Prevents duplicate clinic rows based on their corporate NIT tax code
         },
-        nombre: {
+        name: {
             type: DataTypes.STRING(150),
             allowNull: false,
         },
-        direccion: {
+        address: {
             type: DataTypes.STRING(255),
             allowNull: false,
         },
-        responsable_nombre: {
+        managerName: {
             type: DataTypes.STRING(100),
             allowNull: false,
         },
-        estado: {
-            type: DataTypes.ENUM('activo', 'eliminado'),
+        status: {
+            type: DataTypes.ENUM('active', 'deleted'),
             allowNull: false,
-            defaultValue: 'activo', // Toda clinica nace activa en el sistema
+            defaultValue: 'active', // All clinics are initialized with an active status by default
         },
     },
     {
         sequelize,
-        modelName: 'Clinica',
-        tableName: 'clinicas',
+        modelName: 'Clinic',
+        tableName: 'clinics', // Pluralized table database footprint mapping
     }
 );
