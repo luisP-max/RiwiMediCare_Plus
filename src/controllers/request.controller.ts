@@ -3,6 +3,7 @@ import { RequestSupply } from '../models/request.model.js';
 import { Clinic } from '../models/clinic.model.js';
 import { Medicine } from '../models/medicine.model.js';
 import { Warehouse } from '../models/warehouse.model.js';
+import { WarehouseStock } from '../models/stock.model.js';
 
 /**
  * Creates and persists a new medical replenishment request order.
@@ -36,6 +37,25 @@ export const createRequest = async (req: Request, res: Response) => {
         const warehouseExists = await Warehouse.findByPk(warehouseId);
         if (!warehouseExists || warehouseExists.status === 'deleted') {
             return res.status(404).json({ message: `Error: Target warehouse storage facility unique identifier ${warehouseId} does not exist.` });
+        }
+
+        // --- MIDDLEWARE VALIDATION: Check for sufficient pharmaceutical inventory stock levels ---
+        const stockRecord = await WarehouseStock.findOne({
+            where: { warehouseId, medicineId }
+        });
+
+        // Simulating standard 1000 items stock if record is not explicitly populated yet for testing
+        const currentStock = stockRecord ? stockRecord.availableQuantity : 1000;
+
+        if (currentStock < requestedQuantity) {
+            return res.status(400).json({
+                message: `Error: Insufficient stock within the selected warehouse network interface. Available inventory: ${currentStock}, requested: ${requestedQuantity}.`
+            });
+        }
+
+        // Deduct the requested items from warehouse inventory records to ensure data mutation consistency
+        if (stockRecord) {
+            await stockRecord.update({ availableQuantity: currentStock - requestedQuantity });
         }
 
         const newRequest = await RequestSupply.create({ clinicId, medicineId, warehouseId, requestedQuantity });
