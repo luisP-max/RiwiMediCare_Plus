@@ -6,6 +6,7 @@ import routerClinic from './routes/clinic.router.js';
 import routerWarehouse from './routes/warehouse.router.js';
 import routerMedicine from './routes/medicine.router.js';
 import routerRequest from './routes/request.router.js';
+import routerSeed from './routes/seed.router.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -25,6 +26,7 @@ app.use('/api/clinics', routerClinic);
 app.use('/api/warehouses', routerWarehouse);
 app.use('/api/medicines', routerMedicine);
 app.use('/api/requests', routerRequest);
+app.use('/api/seeds', routerSeed);
 /**
  * Core asynchronous server bootstrap sequence.
  * Establishes database handshakes before opening network interface sockets.
