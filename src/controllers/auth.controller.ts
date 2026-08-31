@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express';
-import { Usuario } from '../models/user.model.js';
+import { User } from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -23,7 +23,7 @@ export const registrarUsuario = async (req: Request, res: Response) => {
         const passwordHash = await bcrypt.hash(password, salt);
 
         // Sequelize realiza el INSERT INTO automatico en la tabla usuarios
-        const nuevoUsuario = await Usuario.create({
+        const nuevoUsuario = await User.create({
             nombre,
             email,
             password: passwordHash,

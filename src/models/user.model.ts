@@ -1,22 +1,26 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../config/db.js';
 
-export class Usuario extends Model {
+/**
+ * User Model representing the 'users' table in PostgreSQL.
+ * Manages administrative and operational credentials for the application.
+ */
+export class User extends Model {
     public id!: string;
-    public nombre!: string;
+    public name!: string;
     public email!: string;
     public password!: string;
-    public rol!: 'Administrador' | 'Gestor de Solicitudes';
+    public role!: 'Administrator' | 'Request Manager';
 }
 
-Usuario.init(
+User.init(
     {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
-        nombre: {
+        name: {
             type: DataTypes.STRING(100),
             allowNull: false,
         },
@@ -25,21 +29,21 @@ Usuario.init(
             allowNull: false,
             unique: true,
             validate: {
-                isEmail: true,
+                isEmail: true, // Core integrity validation to enforce valid email structures
             },
         },
         password: {
             type: DataTypes.STRING(255),
             allowNull: false,
         },
-        rol: {
-            type: DataTypes.ENUM('Administrador', 'Gestor de Solicitudes'),
+        role: {
+            type: DataTypes.ENUM('Administrator', 'Request Manager'),
             allowNull: false,
         },
     },
     {
         sequelize,
-        modelName: 'Usuario',
-        tableName: 'usuarios',
+        modelName: 'User',
+        tableName: 'users', // Pluralized database table name in lowercase English
     }
 );
