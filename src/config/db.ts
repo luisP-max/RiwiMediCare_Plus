@@ -1,34 +1,31 @@
 import { Sequelize } from 'sequelize';
 import 'dotenv/config';
 
-// Instanciamos el constructor del ORM Sequelize con las credenciales del sistema
 export const sequelize = new Sequelize(
     process.env.DB_NAME || 'riwicare_db',
     process.env.DB_USER || 'postgres',
     process.env.DB_PASSWORD || 'postgres',
     {
-        host: process.env.DB_HOST || 'localhost',
+        host: process.env.DB_HOST || 'database',
         port: Number(process.env.DB_PORT) || 5432,
         dialect: 'postgres',
-        logging: false, // Desactivamos los logs ruidosos en la consola para mantenerla limpia
+        logging: false,
         define: {
-            timestamps: true, // Habilita de forma automatica las columnas createdAt y updatedAt
-            underscored: true // Transforma camelCase a snake_case en la base de datos (ej: clinic_id)
+            timestamps: true,
+            underscored: true
         }
     }
 );
 
-// Funcion asincrona para comprobar el estado de la red con el contenedor de Docker
 export const ConnectDB = async (): Promise<void> => {
     try {
         await sequelize.authenticate();
-        console.log('[Database] Conexion con el ORM Sequelize establecida con exito.');
+        console.log('[Database] Native connection with Sequelize ORM established successfully.');
         
-        // El comando sync() se encargara de crear fisicamente todas las tablas del modelo mas adelante
-        await sequelize.sync({ alter: true });
-        console.log('[Database] Inicializacion y sincronizacion del esquema relacional completada.');
+        await sequelize.sync({ force: true });
+        console.log('[Database] Relational schema synchronization completed successfully.');
     } catch (error) {
-        console.error('[Database Error] Fallo critico de enlace en la infraestructura:', error);
+        console.error('[Database Error] Critical connection failure in core infrastructure:', error);
         process.exit(1);
     }
 };
