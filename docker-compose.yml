@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Servidor del motor de base de datos relacional
+  database:
+    image: postgres:15-alpine
+    container_name: riwicare_postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: luis
+      POSTGRES_PASSWORD: luis123
+      POSTGRES_DB: riwicare_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - riwicare_db_data:/var/lib/postgresql/data
+    networks:
+      - riwicare_network
+
+  # Servidor Backend de la API REST de Express
+  api:
+    build: .
+    container_name: riwicare_api_container
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=luis
+      - DB_PASSWORD=luis123
+      - DB_NAME=riwicare_db
+      - JWT_SECRET=llave_secreta_de_alta_seguridad_riwicare_2026
+    depends_on:
+      - database
+    networks:
+      - riwicare_network
+
+# Definicion del almacenamiento persistente y las redes internas de Docker
+volumes:
+  riwicare_db_data:
+
+networks:
+  riwicare_network:
+    driver: bridge
