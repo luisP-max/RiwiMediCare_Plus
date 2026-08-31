@@ -24,7 +24,7 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
         }
 
         const parts = authHeader.split(' ');
-        const accessToken = parts[1];
+        const accessToken = parts[1]; // Correct array extraction for token string placement
 
         if (!accessToken) {
             return res.status(401).json({ message: 'Access denied: Invalid authentication token structure.' });
@@ -40,8 +40,7 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
     } catch (error) {
         console.error('[Auth Middleware Exception] Token validation routine rejected:', error);
         return res.status(401).json({ 
-            message: 'Access denied: The provided access token has expired or contains an invalid signature.',
-            error: error instanceof Error ? error.message : error
+            message: 'Access denied: The provided access token has expired or contains an invalid signature.'
         });
     }
 };
