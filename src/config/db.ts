@@ -31,7 +31,7 @@ export const ConnectDB = async (): Promise<void> => {
         await sequelize.authenticate();
         console.log('[Database] Native connection with Sequelize ORM established successfully.');
         
-        // Drops old tables and forces a clean sync to implement the complete English database schema
+        // Drops old tables and forces a clean sync to implement the complete database schema
         await sequelize.sync({ force: true });
         console.log('[Database] Relational schema synchronization completed successfully.');
     } catch (error) {

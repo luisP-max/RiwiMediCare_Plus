@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'high_security_corporate_jwt_secret
 
 /**
  * Handles the registration logic for new users.
- * Public endpoint without access token validation as per page 2 criteria.
+ * Public endpoint without access token validation
  */
 export const registerUser = async (req: Request, res: Response) => {
     try {
