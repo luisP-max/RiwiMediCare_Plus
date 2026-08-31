@@ -6,23 +6,32 @@ import routerAuth from './routes/auth.router.js';
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-// Middlewares globales obligatorios para procesar payloads JSON
+/**
+ * Global HTTP Middlewares.
+ * Configures the Express engine to natively process incoming JSON payloads.
+ */
 app.use(express.json());
 
-// Montaje de enrutadores oficiales del sistema
+/**
+ * System Route Registrations.
+ * Mounts operational controllers onto standard REST endpoint path structures.
+ */
 app.use('/api/auth', routerAuth);
 
-// Inicializacion asincrona de la infraestructura de RiwiMediCare
+/**
+ * Core asynchronous server bootstrap sequence.
+ * Establishes database handshakes before opening network interface sockets.
+ */
 const startServer = async () => {
     try {
-        // Conectar y sincronizar las tablas de Sequelize con PostgreSQL
+        // Initialize and synchronize all Sequelize data models with the database container
         await ConnectDB();
         
         app.listen(PORT, () => {
-            console.log(`[Server] Servidor Express corriendo en el puerto ${PORT} con exito.`);
+            console.log(`[Server] Express REST API server running on network interface port ${PORT} successfully.`);
         });
     } catch (error) {
-        console.error('[Server Error] Fallo critico al inicializar el servidor:', error);
+        console.error('[Server Error] Critical exception encountered during the core bootstrap protocol:', error);
         process.exit(1);
     }
 };
