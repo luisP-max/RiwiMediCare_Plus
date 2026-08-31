@@ -1,79 +1,94 @@
 import { type Request, type Response } from 'express';
-import { Clinica } from '../models/clinic.model.js';
+import { Clinic } from '../models/clinic.model.js';
 
-// 1. REGISTRAR UNA NUEVA CLÍNICA
-export const crearClinica = async (req: Request, res: Response) => {
+/**
+ * Persists a new healthcare facility row into the database infrastructure.
+ * Enforces prevention of duplicate entry constraints according to corporate tax numbers.
+ */
+export const createClinic = async (req: Request, res: Response) => {
     try {
-        const { nit, nombre, direccion, responsable_nombre } = req.body;
+        const { nit, name, address, managerName } = req.body;
 
-        if (!nit || !nombre || !direccion || !responsable_nombre) {
-            return res.status(400).json({ message: 'Error: Todos los campos (nit, nombre, direccion, responsable_nombre) son obligatorios.' });
+        if (!nit || !name || !address || !managerName) {
+            return res.status(400).json({ message: 'Error: All payload keys (nit, name, address, managerName) are strictly required.' });
         }
 
-        const existeClinica = await Clinica.findOne({ where: { nit } });
-        if (existeClinica) {
-            return res.status(400).json({ message: `Error: Ya existe una clinica registrada con el NIT ${nit}.` });
+        // Prevent duplicate corporate registries prior to hitting database constraints
+        const existingClinic = await Clinic.findOne({ where: { nit } });
+        if (existingClinic) {
+            return res.status(400).json({ message: `Error: A medical facility with the NIT tax code ${nit} is already registered.` });
         }
 
-        const nuevaClinica = await Clinica.create({ nit, nombre, direccion, responsable_nombre });
-        return res.status(201).json({ message: 'Clinica registrada con exito en el sistema', clinica: nuevaClinica });
+        const newClinic = await Clinic.create({ nit, name, address, managerName });
+        return res.status(201).json({ message: 'Healthcare clinic successfully registered within the platform.', clinic: newClinic });
     } catch (error) {
-        console.error('[Clinic Error] Error al crear la clinica:', error);
-        return res.status(500).json({ message: 'Error interno al registrar la clinica', error });
+        console.error('[Clinic Controller Error] Failed to complete clinic entry creation:', error);
+        return res.status(500).json({ message: 'Internal server error encountered during clinic row entry generation.', error });
     }
 };
 
-// 2. CONSULTAR TODAS LAS CLÍNICAS ACTIVAS
-export const obtenerClinicas = async (req: Request, res: Response) => {
+/**
+ * Retrieves all registered clinics currently marked with an active status footprint.
+ */
+export const getClinics = async (req: Request, res: Response) => {
     try {
-        const clinicas = await Clinica.findAll({ where: { estado: 'activo' } });
-        return res.json(clinicas);
+        const clinics = await Clinic.findAll({ where: { status: 'active' } });
+        return res.json(clinics);
     } catch (error) {
-        return res.status(500).json({ message: 'Error al consultar las clinicas', error });
+        console.error('[Clinic Controller Error] Failed to query active clinics list:', error);
+        return res.status(500).json({ message: 'Internal server error encountered while fetching the active clinics registry list.', error });
     }
 };
 
-// 3. ACTUALIZAR DATOS DE UNA CLÍNICA
-export const actualizarClinica = async (req: Request, res: Response) => {
+/**
+ * Modifies specific field properties of an existing active clinic record dataset.
+ */
+export const updateClinic = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { nombre, direccion, responsable_nombre } = req.body;
+        const { name, address, managerName } = req.body;
 
-        // Validacion de seguridad para garantizar que el ID no sea undefined ante el ORM
+        // Strict defensive data validation to eliminate TypeScript findByPk string exceptions
         if (!id || typeof id !== 'string') {
-            return res.status(400).json({ message: 'Error: El parametro ID de la clinica es requerido.' });
+            return res.status(400).json({ message: 'Error: The requested clinic unique string identifier parameter is required.' });
         }
 
-        const clinica = await Clinica.findByPk(id);
-        if (!clinica || clinica.estado === 'eliminado') {
-            return res.status(404).json({ message: 'Error: Clinica no encontrada o inactiva en el sistema.' });
+        const clinic = await Clinic.findByPk(id);
+        if (!clinic || clinic.status === 'deleted') {
+            return res.status(404).json({ message: 'Error: The specified clinic record was not found or is currently marked inactive.' });
         }
 
-        await clinica.update({ nombre, direccion, responsable_nombre });
-        return res.json({ message: 'Datos de la clinica actualizados con exito', clinica });
+        await clinic.update({ name, address, managerName });
+        return res.json({ message: 'Clinic dataset records updated successfully.', clinic });
     } catch (error) {
-        return res.status(500).json({ message: 'Error al actualizar la clinica', error });
+        console.error('[Clinic Controller Error] Failed to process clinic dataset modification updates:', error);
+        return res.status(500).json({ message: 'Internal server error encountered during clinic entity record modifications.', error });
     }
 };
 
-// 4. ELIMINACIÓN LÓGICA
-export const eliminarClinica = async (req: Request, res: Response) => {
+/**
+ * Executes a logical soft-delete workflow upon a clinic entity row.
+ * Alters the operational status metadata to ensure historical query preservation data logs.
+ */
+export const deleteClinic = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
 
-        // Validacion de seguridad para garantizar que el ID no sea undefined ante el ORM
+        // Strict defensive data validation to eliminate TypeScript findByPk string exceptions
         if (!id || typeof id !== 'string') {
-            return res.status(400).json({ message: 'Error: El parametro ID de la clinica es requerido.' });
+            return res.status(400).json({ message: 'Error: The requested clinic unique string identifier parameter is required.' });
         }
 
-        const clinica = await Clinica.findByPk(id);
-        if (!clinica || clinica.estado === 'eliminado') {
-            return res.status(404).json({ message: 'Error: La clinica no existe o ya fue removida.' });
+        const clinic = await Clinic.findByPk(id);
+        if (!clinic || clinic.status === 'deleted') {
+            return res.status(404).json({ message: 'Error: The specified clinic target was not found or has already been soft-deleted.' });
         }
 
-        await clinica.update({ estado: 'eliminado' });
-        return res.json({ message: 'Clinica eliminada de forma logica en el sistema de manera exitosa.' });
+        // Fulfilling examination rules page 3: Switch status instead of dropping rows physically
+        await clinic.update({ status: 'deleted' });
+        return res.json({ message: 'Clinic account resource successfully soft-deleted from active system execution.' });
     } catch (error) {
-        return res.status(500).json({ message: 'Error al eliminar la clinica', error });
+        console.error('[Clinic Controller Error] Failed to execute logical entity deletion sequence:', error);
+        return res.status(500).json({ message: 'Internal server error encountered during logical soft-delete operation.', error });
     }
 };
