@@ -5,7 +5,9 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -17,17 +19,24 @@
   },
   "homepage": "https://github.com/luisP-max/RiwiMediCare_Plus#readme",
   "devDependencies": {
+    "@swc/core": "^1.16.1",
+    "@swc/jest": "^0.2.39",
     "@types/bcrypt": "^6.0.0",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.4.0",
     "@types/pg": "^8.23.1",
     "@types/sequelize": "^4.28.20",
+    "@types/supertest": "^7.2.1",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
+    "jest": "^30.5.0",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.12",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   },
