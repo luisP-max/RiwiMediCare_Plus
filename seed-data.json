@@ -1,0 +1,50 @@
+{
+  "clinics": [
+    {
+      "nit": "901234567-1",
+      "name": "RiwiMediCare Central Clinic",
+      "address": "Avenida El Poblado 45-12, Medellin",
+      "managerName": "Dr. Luis Hernandez"
+    },
+    {
+      "nit": "901987654-2",
+      "name": "RiwiMediCare Northern General Hospital",
+      "address": "Calle 100 # 15-30, Bogota",
+      "managerName": "Dr. Carlos Mendoza"
+    },
+    {
+      "nit": "901555333-3",
+      "name": "RiwiMediCare Coastal Medical Center",
+      "address": "Carrera 53 # 74-21, Barranquilla",
+      "managerName": "Dra. Maria Palacios"
+    }
+  ],
+  "warehouses": [
+    {
+      "name": "North Pharmaceutical Distribution Hub",
+      "location": "Industrial Zone Complex Row 4, Block C"
+    },
+    {
+      "name": "Pacific Logistics Storage Facility",
+      "location": "Maritime Port Avenue Facility 12"
+    }
+  ],
+  "medicines": [
+    {
+      "name": "Acetaminophen 500mg",
+      "description": "Analgesic and antipyretic formulation for institutional pain management."
+    },
+    {
+      "name": "Amoxicillin 250mg",
+      "description": "Broad-spectrum antibiotic suspension indicated for bacterial infections."
+    },
+    {
+      "name": "Ibuprofen 400mg",
+      "description": "Non-steroidal anti-inflammatory drug (NSAID) for mild to moderate acute pain."
+    },
+    {
+      "name": "Metformin 850mg",
+      "description": "Oral anti-hyperglycemic medication for type 2 diabetes mellitus control."
+    }
+  ]
+}
